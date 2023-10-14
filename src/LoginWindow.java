@@ -59,6 +59,7 @@ public class LoginWindow{
         UserField = new JTextField();
         PassField = new JPasswordField();
 
+        //Setting up local variables
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         Font titlefont = (new Font("Valorant", Font.BOLD, 55));
         Font subtitlefont = (new Font("Valorant", Font.BOLD, 25));
@@ -130,6 +131,8 @@ public class LoginWindow{
         CloseButton.setBorderPainted(false);
         CloseButton.setBorder(null);
 
+
+        //This is the login button. Opens the main window when credentials are correct
         LoginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) 
             {
@@ -137,7 +140,7 @@ public class LoginWindow{
                 String Pass = new String(PassField.getPassword());
                 if(ID.equals("admin") && Pass.equals("password") ){
                     JOptionPane.showMessageDialog(null, "Welcome!");
-                    //mainpage homepage = new mainpage();
+                    mainpage homepage = new mainpage();
                     LoginWindow.dispose();
                 }
                 else {
@@ -149,6 +152,7 @@ public class LoginWindow{
             }
         });
 
+        //This is the close button. It closes the application when pressed
         CloseButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) 
             {
@@ -156,7 +160,8 @@ public class LoginWindow{
                 }
             }
         );
-
+        
+        // Adding of Components to the Panels
         TransparentPanel.add(UserLabel);
         TransparentPanel.add(PassLabel);
         TransparentPanel.add(subTitleLabel);
@@ -167,7 +172,8 @@ public class LoginWindow{
 
         RootPanel.add(CloseButton);
         RootPanel.add(TransparentPanel);
-
+        
+        //Adding of Panels to the main window
         LoginWindow.getContentPane().add(RootPanel);
 
         //Window Essential
