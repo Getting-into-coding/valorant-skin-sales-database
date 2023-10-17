@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.Paint;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,8 +33,29 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.LegendItemSource;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.labels.StandardCategoryToolTipGenerator;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.DefaultDrawingSupplier;
+import org.jfree.chart.plot.PiePlot3D;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.renderer.category.CategoryItemRenderer;
+import org.jfree.chart.title.LegendTitle;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.util.Rotation;
+
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.mysql.cj.x.protobuf.MysqlxCursor.Fetch;
 
 import java.sql.*;
 
@@ -53,7 +75,7 @@ public class mainpage {
     
     JPanel NavPanel, DashPanel, ImagePanel, HomePanel, GraphPanel, RootPanel;
 
-    JButton DashButton, HomeButton, GraphButton, LogoutButton;
+    JButton DashButton, HomeButton, GraphButton, LogoutButton, GetSalesButton, GetItemsButton, FetchDataButton;
 
     //JComboBox GunType, SkinFamily, SortBy;
 
@@ -63,6 +85,10 @@ public class mainpage {
 
     JLabel LabelID, LabelType, LabelFamily, LabelPoints,LabelUSD, LabelNumbers, LabelTotal, LabelDate, LabelGunImage;
     JLabel ValueID, ValueType, ValueFamily, ValuePoints, ValueUSD, ValueNumbers, ValueTotal, ValueDate;
+    JLabel LabelAverage, LabelPopularSkin, LabelPopularFamily, LabelHighestSkin, LabelHighestFamily;
+    JLabel GraphPanelTitle, ValueAverage, ValuePopularSkin, ValuePopularFamily, ValueHighestSkin, ValueHighestFamily;
+
+
 
     mainpage(){
         //Instantiations
@@ -81,6 +107,39 @@ public class mainpage {
         LogoutButton = new JButton();
 
         DashTable = new JTable();
+
+        LabelGunImage = new JLabel();
+        LabelID = new JLabel();
+        LabelType = new JLabel();
+        LabelFamily = new JLabel();
+        LabelPoints = new JLabel();
+        LabelUSD = new JLabel();
+        LabelNumbers = new JLabel();
+        LabelTotal = new JLabel();
+        LabelDate = new JLabel();
+
+        LabelAverage = new JLabel();
+        LabelPopularSkin = new JLabel();
+        LabelPopularFamily = new JLabel();
+        LabelHighestSkin = new JLabel();
+        LabelHighestFamily = new JLabel();
+        GraphPanelTitle = new JLabel();
+
+        ValueAverage = new JLabel();
+        ValuePopularSkin = new JLabel();
+        ValuePopularFamily = new JLabel();
+        ValueHighestSkin = new JLabel();
+        ValueHighestFamily = new JLabel();
+
+        ValueID = new JLabel();
+        ValueType = new JLabel();
+        ValueFamily = new JLabel();
+        ValuePoints = new JLabel();
+        ValueUSD = new JLabel();
+        ValueNumbers = new JLabel();
+        ValueTotal = new JLabel();
+        ValueDate = new JLabel();
+
 
         //Setting up local variables
         Font titlefont = (new Font("Valorant", Font.BOLD, 55));
@@ -122,7 +181,7 @@ public class mainpage {
         HomePanel.setBackground(bgColor);
 
         //Graph Panel
-        GraphPanel.setBorder(BorderFactory.createLineBorder(Color.green));
+        //GraphPanel.setBorder(BorderFactory.createLineBorder(Color.green));
         GraphPanel.setBounds(widthNav,0,widthDash+widthImage, 720);
         GraphPanel.setLayout(null);
         GraphPanel.setBackground(bgColor);
@@ -133,6 +192,18 @@ public class mainpage {
         NavPanel.setBounds(-10,0,widthNav, 720);
         NavPanel.setLayout(null);
         NavPanel.putClientProperty(FlatClientProperties.STYLE, "arc:30");
+
+        HomePanel.setVisible(true);
+        HomePanel.setEnabled(true);
+
+        ImagePanel.setVisible(false);
+        ImagePanel.setEnabled(false);
+
+        DashPanel.setVisible(false);
+        DashPanel.setEnabled(false);
+
+        GraphPanel.setVisible(false);
+        GraphPanel.setEnabled(false);
         
         //Button Variables
         int buttonx = (widthNav - 70)/2, buttonspacing = 30, buttony = (720/2);
@@ -225,33 +296,14 @@ public class mainpage {
         }
 
         TableScrollPane = new JScrollPane();
-        TableScrollPane.setBounds(5, 100, widthDash-20, 600);
+        TableScrollPane.setBounds(5, 30, widthDash-20, 690);
         
         
         TableScrollPane.setViewportView(DashTable);
 
         DashPanel.add(TableScrollPane);
 
-        //Instantiations of labels here because I'm lazy to do it on the top again
-        LabelGunImage = new JLabel();
-        LabelID = new JLabel();
-        LabelType = new JLabel();
-        LabelFamily = new JLabel();
-        LabelPoints = new JLabel();
-        LabelUSD = new JLabel();
-        LabelNumbers = new JLabel();
-        LabelTotal = new JLabel();
-        LabelDate = new JLabel();
-
-        ValueID = new JLabel();
-        ValueType = new JLabel();
-        ValueFamily = new JLabel();
-        ValuePoints = new JLabel();
-        ValueUSD = new JLabel();
-        ValueNumbers = new JLabel();
-        ValueTotal = new JLabel();
-        ValueDate = new JLabel();
-
+        
         //Features for the Image Panel
         
         // Add selection listener to table
@@ -382,7 +434,279 @@ public class mainpage {
         ValueDate.setFont(headfont);
         ValueDate.setBounds((widthImage/2)+30, (buttony+55*5)+5*4, (widthImage/2), 50);
         ValueDate.setForeground(TextColor);
+
+
+        //Features and GUI for Graph Panel
+
+        int GraphButtonY = 600, GraphPanelWidth = 960;
+
+        GraphPanelTitle.setText("Monthly Report");
+        GraphPanelTitle.setFont(titlefont);
+        GraphPanelTitle.setBounds((GraphPanelWidth/2)-250, buttony-45*8, GraphPanelWidth, 100);
+        GraphPanelTitle.setForeground(TitleColor);
+
+        LabelAverage.setText("Average Sales Per Day:");
+        LabelAverage.setFont(subtitlefont);
+        LabelAverage.setBounds(10, buttony-45*5, (widthImage/2)+200, 50);
+        LabelAverage.setForeground(TitleColor);
+
+        ValueAverage.setFont(headfont);
+        ValueAverage.setBounds((widthImage)+30, (buttony-50*5)+5*4, (widthImage/2), 50);
+        ValueAverage.setForeground(TextColor);
+
+        LabelPopularSkin.setText("Most Popular Skin:");
+        LabelPopularSkin.setFont(subtitlefont);
+        LabelPopularSkin.setBounds(10, buttony-45*3, (widthImage/2)+200, 50);
+        LabelPopularSkin.setForeground(TitleColor);
+
+        ValuePopularSkin.setFont(headfont);
+        ValuePopularSkin.setBounds((widthImage)+30, (buttony-50*3)+5*2, (widthImage)+200, 50);
+        ValuePopularSkin.setForeground(TextColor);
+
+        LabelPopularFamily.setText("Most Popular Family:");
+        LabelPopularFamily.setFont(subtitlefont);
+        LabelPopularFamily.setBounds(10, buttony-45*1, (widthImage/2)+200, 50);
+        LabelPopularFamily.setForeground(TitleColor);
+
+        ValuePopularFamily.setFont(headfont);
+        ValuePopularFamily.setBounds((widthImage)+30, (buttony-50*1)+5*0, (widthImage)+200, 50);
+        ValuePopularFamily.setForeground(TextColor);
+
+        LabelHighestSkin.setText("Highest Profit Skin:");
+        LabelHighestSkin.setFont(subtitlefont);
+        LabelHighestSkin.setBounds(10, buttony+45*1, (widthImage/2)+200, 50);
+        LabelHighestSkin.setForeground(TitleColor);
+
+        ValueHighestSkin.setFont(headfont);
+        ValueHighestSkin.setBounds((widthImage)+30, (buttony+50*1)-5*2, (widthImage)+200, 50);
+        ValueHighestSkin.setForeground(TextColor);
+
+        LabelHighestFamily.setText("Highest Profit Family:");
+        LabelHighestFamily.setFont(subtitlefont);
+        LabelHighestFamily.setBounds(10, buttony+45*3, (widthImage/2)+200, 50);
+        LabelHighestFamily.setForeground(TitleColor);
+
+        ValueHighestFamily.setFont(headfont);
+        ValueHighestFamily.setBounds((widthImage)+30, (buttony+50*3)-5*4, (widthImage)+200, 50);
+        ValueHighestFamily.setForeground(TextColor);
+
+        GetSalesButton = new JButton();
+
+        GetSalesButton.setText("Fetch Monthly Report");
+        GetSalesButton.setBackground(TitleColor);
+        GetSalesButton.setFont(buttonFont);
+        GetSalesButton.setForeground(Color.WHITE);
+        GetSalesButton.setBounds((GraphPanelWidth/2)-250, GraphButtonY, 150, 50);
+        GetSalesButton.putClientProperty(FlatClientProperties.STYLE, "arc:30");
+        GetSalesButton.setFocusable(false);
+
+        GetSalesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                ResultSet rs = null;
+                Color BarColor = new Color(255,70,85);
+                Color bgChartColor = new Color(80, 80, 80);
+                try {
+                    Connection conn = DriverManager.getConnection(url, user, password);
+                    Statement stmt = conn.createStatement();
+                    String sql = "SELECT Week, Weekly_Profit FROM valorantgraphsheet";
+                    rs = stmt.executeQuery(sql);
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+                {
+                    DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+                    try {
+                        while (rs.next()) {
+                            String week = rs.getString("Week");
+                            int units = rs.getInt("Weekly_Profit");
+                            dataset.addValue(units, "Weekly_Profit", week);
+                        }
+                    } catch (SQLException e2) {
+                        e2.printStackTrace();
+                    }
+
+                    JFreeChart barChart = ChartFactory.createBarChart(
+                            "Profits in September",
+                            "Week",
+                            "USD $",
+                            dataset,
+                            PlotOrientation.VERTICAL,
+                            true, true, false);
+
+                    barChart.setBackgroundPaint(bgColor);
+                    
+                    CategoryPlot plot = barChart.getCategoryPlot();
+                    
+                    CategoryAxis domainAxis = plot.getDomainAxis();
+                    domainAxis.setLabelPaint(Color.WHITE);
+                    domainAxis.setTickLabelPaint(Color.WHITE);
+
+                    
+                    ValueAxis rangeAxis = plot.getRangeAxis();
+                    rangeAxis.setLabelPaint(Color.WHITE);
+                    rangeAxis.setTickLabelPaint(Color.WHITE);
+                    plot.setBackgroundPaint(bgChartColor);
+                    plot.setOutlinePaint(Color.WHITE);
+                    barChart.getTitle().setPaint(BarColor);
+                    
+                    BarRenderer renderer = (BarRenderer) plot.getRenderer();
+                    renderer.setSeriesPaint(0, BarColor);
+
+                    renderer.setBaseToolTipGenerator(new StandardCategoryToolTipGenerator());
+                    
+                    
+                    ChartFrame frame = new ChartFrame("September Chart", barChart);
+                    frame.setVisible(true);
+                    frame.setSize(450, 500);
+                    frame.setBackground(bgColor);
+
+                    int w = frame.getSize().width;
+                    int h = frame.getSize().height;
+                    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                    int x = (dim.width-w)/2;
+                    int y = (dim.height-h)/2;
+                    frame.setLocation(x,y);
+                    frame.setVisible(true);
+                            }
+                        }
+            });
+
+        GetItemsButton = new JButton();
+
+        GetItemsButton.setText("Show Items Sold Distribution");
+        GetItemsButton.setBackground(TitleColor);
+        GetItemsButton.setFont(buttonFont);
+        GetItemsButton.setForeground(Color.WHITE);
+        GetItemsButton.setBounds((GraphPanelWidth/2)+100, GraphButtonY, 200, 50);
+        GetItemsButton.putClientProperty(FlatClientProperties.STYLE, "arc:30");
+        GetItemsButton.setFocusable(false);
+
+        GetItemsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                Color BarColor = new Color(255,70,85);
+                Color bgChartColor = new Color(80, 80, 80);
+                String chartTitle = "Best Skin Line Sold";
+                DefaultPieDataset dataset = new DefaultPieDataset();
+                try {
+                    Connection conn = DriverManager.getConnection(url, user, password);
+                    Statement st = conn.createStatement();
+                    ResultSet rs = st.executeQuery("SELECT skin_family, SUM(number_sold) as total FROM valorantspreadsheet GROUP BY skin_family");
+
+                    while (rs.next()) {
+                        dataset.setValue(rs.getString("skin_family"), rs.getDouble("total"));
+                    }
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                }
+                {
+                    JFreeChart piechart = ChartFactory.createPieChart3D(chartTitle, dataset, true, true, false);
+                    
+                    PiePlot3D plot = (PiePlot3D) piechart.getPlot();
+                    plot.setStartAngle(290);
+                    plot.setDirection(Rotation.CLOCKWISE);
+                    plot.setForegroundAlpha(1.0f);
+                    plot.setBackgroundPaint(bgChartColor);
+                    plot.setLabelBackgroundPaint(Color.WHITE);
+                    plot.setOutlinePaint(Color.WHITE);
+
+                    
+                    piechart.setBackgroundPaint(bgColor);
+                    piechart.getTitle().setPaint(BarColor);
+                    
+                    ChartFrame frame = new ChartFrame(chartTitle, piechart);
+                    frame.setVisible(true);
+                    frame.setSize(1080, 720);
+                    frame.setBackground(bgColor);
+
+                    int w = frame.getSize().width;
+                    int h = frame.getSize().height;
+                    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                    int x = (dim.width-w)/2;
+                    int y = (dim.height-h)/2;
+                    frame.setLocation(x,y);
+                    frame.setVisible(true);
+                            }
+                        }
+            });
+            
+        FetchDataButton = new JButton();
+
+        FetchDataButton.setText("Fetch Data");
+        FetchDataButton.setBackground(TitleColor);
+        FetchDataButton.setFont(buttonFont);
+        FetchDataButton.setForeground(Color.WHITE);
+        FetchDataButton.setBounds((GraphPanelWidth/2)-50, GraphButtonY, 100, 50);
+        FetchDataButton.putClientProperty(FlatClientProperties.STYLE, "arc:30");
+        FetchDataButton.setFocusable(false);
+
+        FetchDataButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                Color BarColor = new Color(255,70,85);
+                Color bgChartColor = new Color(80, 80, 80);
+                String chartTitle = "Best Skin Line Sold";
+                DefaultPieDataset dataset = new DefaultPieDataset();
+                try {
+                    Connection conn = DriverManager.getConnection(url, user, password);
+                    String outAve = null;
+                    String outPopSkin = null;
+                    String outPopFam = null;
+                    String outHighSkin = null;
+                    String outHighFam = null;
+
+                    Statement st1 = conn.createStatement();
+                    Statement st2 = conn.createStatement();
+                    Statement st3 = conn.createStatement();
+                    Statement st4 = conn.createStatement();
+                    Statement st5 = conn.createStatement();
+
+                    ResultSet rs1 = st1.executeQuery("SELECT SUM(No_Units_Sold)/30 as total FROM valorantgraphsheet");
+                    ResultSet rs2 = st2.executeQuery("SELECT skin_family, SUM(number_sold) as total FROM valorantspreadsheet GROUP BY skin_family ORDER BY total DESC LIMIT 1;");
+                    ResultSet rs3 = st3.executeQuery("SELECT skin_family, SUM(total_sold_USD) as total FROM valorantspreadsheet GROUP BY skin_family ORDER BY total DESC LIMIT 1;");                  
+                    ResultSet rs4 = st4.executeQuery("SELECT skin_family, gun_type, SUM(number_sold) as total FROM valorantspreadsheet GROUP BY skin_family, gun_type ORDER BY total DESC LIMIT 1;");
+                    ResultSet rs5 = st5.executeQuery("SELECT skin_family, gun_type, SUM(total_sold_USD) as total FROM valorantspreadsheet GROUP BY skin_family, gun_type ORDER BY total DESC LIMIT 1;");
+                    
+                    while(rs1.next()){
+                    outAve = String.valueOf((int)Math.round(rs1.getDouble("total")));
+                    }
+                    rs1.close();
+                    st1.close();
+                    while(rs2.next()){
+                    outPopFam = rs2.getString("skin_family") + ": " + String.valueOf(rs2.getInt("total")) + " copies sold";
+                    }
+                    rs2.close();
+                    st2.close();
+                    while(rs3.next()){
+                    outHighFam = rs3.getString("skin_family") + ": $" + String.valueOf((int)Math.round(rs3.getDouble("total")));
+                    }
+                    rs3.close();
+                    st3.close();
+                    while(rs4.next()){
+                    outPopSkin = rs4.getString("gun_type") + " " + rs4.getString("skin_family") + ": " + String.valueOf(rs4.getInt("total") + " copies sold");
+                    }
+                    rs4.close();
+                    st4.close();
+                    while(rs5.next()){
+                    outHighSkin = rs5.getString("gun_type") + " " + rs5.getString("skin_family") + ": $" + String.valueOf((int)Math.round(rs5.getDouble("total")));
+                    }
+                    rs5.close();
+                    st5.close();
+
+                    
+                    ValueAverage.setText(outAve);
+                    ValuePopularSkin.setText(outPopSkin);
+                    ValuePopularFamily.setText(outPopFam);
+                    ValueHighestSkin.setText(outHighSkin);
+                    ValueHighestFamily.setText(outHighFam);
+
+                } catch (SQLException e1) {
+                    e1.printStackTrace();
+                    }
+                }
+                    
         
+            });
         //Defining functions for the JButtons
         HomeButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) 
@@ -447,6 +771,22 @@ public class mainpage {
 
         
         //Adding Components to Panels
+        GraphPanel.add(GraphPanelTitle);
+        GraphPanel.add(LabelAverage);
+        GraphPanel.add(LabelPopularSkin);
+        GraphPanel.add(LabelPopularFamily);
+        GraphPanel.add(LabelHighestSkin);
+        GraphPanel.add(LabelHighestFamily);
+
+        GraphPanel.add(ValueAverage);
+        GraphPanel.add(ValuePopularSkin);
+        GraphPanel.add(ValuePopularFamily);
+        GraphPanel.add(ValueHighestSkin);
+        GraphPanel.add(ValueHighestFamily);
+
+        GraphPanel.add(GetItemsButton);
+        GraphPanel.add(GetSalesButton);
+        GraphPanel.add(FetchDataButton);
 
         ImagePanel.add(LabelID);
         ImagePanel.add(LabelDate);
