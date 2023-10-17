@@ -508,7 +508,7 @@ public class mainpage {
                 try {
                     Connection conn = DriverManager.getConnection(url, user, password);
                     Statement stmt = conn.createStatement();
-                    String sql = "SELECT Week, No_Units_Sold FROM valorantgraphsheet";
+                    String sql = "SELECT Week, Weekly_Profit FROM valorantgraphsheet";
                     rs = stmt.executeQuery(sql);
                 } catch (SQLException e1) {
                     e1.printStackTrace();
@@ -519,17 +519,17 @@ public class mainpage {
                     try {
                         while (rs.next()) {
                             String week = rs.getString("Week");
-                            int units = rs.getInt("No_Units_Sold");
-                            dataset.addValue(units, "No_Units_Sold", week);
+                            int units = rs.getInt("Weekly_Profit");
+                            dataset.addValue(units, "Weekly_Profit", week);
                         }
                     } catch (SQLException e2) {
                         e2.printStackTrace();
                     }
 
                     JFreeChart barChart = ChartFactory.createBarChart(
-                            "Units Sold in September",
+                            "Profits in September",
                             "Week",
-                            "Units",
+                            "USD $",
                             dataset,
                             PlotOrientation.VERTICAL,
                             true, true, false);
