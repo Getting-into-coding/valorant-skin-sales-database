@@ -2,6 +2,10 @@
     "java.project.sourcePaths": ["src"],
     "java.project.outputPath": "bin",
     "java.project.referencedLibraries": [
-        "lib/**/*.jar"
+        "lib/**/*.jar",
+        "src/VLC jar Files/jar_files/jna-jpms-5.12.1.jar",
+        "src/VLC jar Files/jar_files/jna-platform-jpms-5.12.1.jar",
+        "src/VLC jar Files/jar_files/vlcj-4.8.2.jar",
+        "src/VLC jar Files/jar_files/vlcj-natives-4.8.1.jar"
     ]
 }

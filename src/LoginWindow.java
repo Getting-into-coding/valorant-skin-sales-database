@@ -140,7 +140,7 @@ public class LoginWindow{
                 String Pass = new String(PassField.getPassword());
                 if(ID.equals("admin") && Pass.equals("password") ){
                     JOptionPane.showMessageDialog(null, "Welcome!");
-                    mainpage homepage = new mainpage();
+                    TryVideo homepage = new TryVideo();
                     LoginWindow.dispose();
                 }
                 else {

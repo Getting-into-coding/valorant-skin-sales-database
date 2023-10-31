@@ -1,3 +1,5 @@
+import java.awt.BorderLayout;
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -6,6 +8,8 @@ import java.awt.Paint;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -57,40 +61,55 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.mysql.cj.x.protobuf.MysqlxCursor.Fetch;
 
+
 import java.sql.*;
+
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+
+import java.awt.BorderLayout;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
+import org.jfree.ui.tabbedui.RootPanel;
+
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatDarkLaf;
+
 
 public class mainpage {
 
-    //Establishing connection with SQL server
-	String sqlForName = "com.mysql.cj.jdbc.Driver";
-	String sqlURL = "jdbc:mysql://localhost/ValorantSkinDatabase";
-    String user = "root";
-    String password = "59gb363WvvDNk1nuW";
-	Connection con;
-	PreparedStatement pst;
-	ResultSet rs;
-
-    //Declaration of Components
-    JFrame MainWindow;
+    private JFrame MainWindow;
     
-    JPanel NavPanel, DashPanel, ImagePanel, HomePanel, GraphPanel, RootPanel;
+    private JPanel NavPanel, DashPanel, ImagePanel, HomePanel, GraphPanel, RootPanel;
 
-    JButton DashButton, HomeButton, GraphButton, LogoutButton, GetSalesButton, GetItemsButton, FetchDataButton;
+    JPanel VideoPanel;
+    Canvas canvas;
+
+    private JButton DashButton, HomeButton, GraphButton, LogoutButton, GetSalesButton, GetItemsButton, FetchDataButton;
 
     //JComboBox GunType, SkinFamily, SortBy;
 
-    JTable DashTable;
+    private JTable DashTable;
 
-    JScrollPane TableScrollPane;
+    private JScrollPane TableScrollPane;
 
-    JLabel LabelID, LabelType, LabelFamily, LabelPoints,LabelUSD, LabelNumbers, LabelTotal, LabelDate, LabelGunImage;
-    JLabel ValueID, ValueType, ValueFamily, ValuePoints, ValueUSD, ValueNumbers, ValueTotal, ValueDate;
-    JLabel LabelAverage, LabelPopularSkin, LabelPopularFamily, LabelHighestSkin, LabelHighestFamily;
-    JLabel GraphPanelTitle, ValueAverage, ValuePopularSkin, ValuePopularFamily, ValueHighestSkin, ValueHighestFamily;
+    private JLabel LabelID, LabelType, LabelFamily, LabelPoints,LabelUSD, LabelNumbers, LabelTotal, LabelDate, LabelGunImage, RiotLogo;
+    private JLabel ValueID, ValueType, ValueFamily, ValuePoints, ValueUSD, ValueNumbers, ValueTotal, ValueDate;
+    private JLabel LabelAverage, LabelPopularSkin, LabelPopularFamily, LabelHighestSkin, LabelHighestFamily;
+    private JLabel GraphPanelTitle, ValueAverage, ValuePopularSkin, ValuePopularFamily, ValueHighestSkin, ValueHighestFamily;
 
+    EmbeddedMediaPlayerComponent mediaPlayerComponent;
 
 
     mainpage(){
+
         //Instantiations
         MainWindow = new JFrame();
 
@@ -100,6 +119,9 @@ public class mainpage {
         HomePanel = new JPanel();
         GraphPanel = new JPanel();
         RootPanel = new JPanel();
+        VideoPanel = new JPanel();
+
+        canvas = new Canvas();
 
         DashButton = new JButton();
         HomeButton = new JButton();
@@ -113,6 +135,7 @@ public class mainpage {
         LabelType = new JLabel();
         LabelFamily = new JLabel();
         LabelPoints = new JLabel();
+        RiotLogo = new JLabel();
         LabelUSD = new JLabel();
         LabelNumbers = new JLabel();
         LabelTotal = new JLabel();
@@ -140,7 +163,6 @@ public class mainpage {
         ValueTotal = new JLabel();
         ValueDate = new JLabel();
 
-
         //Setting up local variables
         Font titlefont = (new Font("Valorant", Font.BOLD, 55));
         Font subtitlefont = (new Font("Valorant", Font.BOLD, 25));
@@ -150,6 +172,7 @@ public class mainpage {
         Color bgColor = new Color(20, 20, 20);
         Color bgColor2 = new Color(115, 115, 115,100);
         Color bgColor3 = new Color(189, 57, 68, 100);
+        Color bgColor4 = new Color(0, 0, 0, 0);
         Color TitleColor = new Color(255,70,85);
         Color TextColor = new Color(255,255,255);
 
@@ -167,7 +190,7 @@ public class mainpage {
         ImagePanel.setBounds(widthNav+widthDash,0,widthImage, 720);
         ImagePanel.setLayout(null);
         //ImagePanel.putClientProperty(FlatClientProperties.STYLE, "arc:40");
-        
+
         //Dashboard Panel
         //DashPanel.setBorder(BorderFactory.createLineBorder(Color.blue));
         DashPanel.setBounds(widthNav,0,widthDash, 720);
@@ -189,11 +212,25 @@ public class mainpage {
         //Navigation Panel
         //NavPanel.setBorder(BorderFactory.createLineBorder(Color.red));
         NavPanel.setBackground(bgColor3);
+        NavPanel.setOpaque(true);
         NavPanel.setBounds(-10,0,widthNav, 720);
         NavPanel.setLayout(null);
         NavPanel.putClientProperty(FlatClientProperties.STYLE, "arc:30");
 
+        Image RiotImage;
+                try {
+                    RiotImage = ImageIO.read(LoginWindow.class.getResourceAsStream("/Images/IconsLogos/riotlogo75x.png"));
+                    ImageIcon imageIcon = new ImageIcon(RiotImage);
+                    RiotLogo.setIcon(imageIcon);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+        RiotLogo.setBounds(25,30,75,75);
+        
         HomePanel.setVisible(true);
+        VideoPanel.setVisible(true);
         HomePanel.setEnabled(true);
 
         ImagePanel.setVisible(false);
@@ -204,7 +241,7 @@ public class mainpage {
 
         GraphPanel.setVisible(false);
         GraphPanel.setEnabled(false);
-        
+
         //Button Variables
         int buttonx = (widthNav - 70)/2, buttonspacing = 30, buttony = (720/2);
         int buttonpos1 = buttony - (buttonspacing*3);
@@ -244,7 +281,7 @@ public class mainpage {
         LogoutButton.setBounds(buttonx, buttonpos4, 70, 50);
         LogoutButton.putClientProperty(FlatClientProperties.STYLE, "arc:30");
         LogoutButton.setFocusable(false);
-
+        
         //JTable
         // Database connection details
         String url = "jdbc:mysql://localhost:3306/valorantskins";
@@ -434,7 +471,6 @@ public class mainpage {
         ValueDate.setFont(headfont);
         ValueDate.setBounds((widthImage/2)+30, (buttony+55*5)+5*4, (widthImage/2), 50);
         ValueDate.setForeground(TextColor);
-
 
         //Features and GUI for Graph Panel
 
@@ -714,6 +750,9 @@ public class mainpage {
                     HomePanel.setVisible(true);
                     HomePanel.setEnabled(true);
 
+                    VideoPanel.setVisible(true);
+                    VideoPanel.setEnabled(true);
+
                     ImagePanel.setVisible(false);
                     ImagePanel.setEnabled(false);
 
@@ -730,6 +769,9 @@ public class mainpage {
             {
                     HomePanel.setVisible(false);
                     HomePanel.setEnabled(false);
+
+                    VideoPanel.setVisible(false);
+                    VideoPanel.setEnabled(false);
 
                     ImagePanel.setVisible(true);
                     ImagePanel.setEnabled(true);
@@ -748,6 +790,9 @@ public class mainpage {
                     HomePanel.setVisible(false);
                     HomePanel.setEnabled(false);
 
+                    VideoPanel.setVisible(false);
+                    VideoPanel.setEnabled(false);
+
                     ImagePanel.setVisible(false);
                     ImagePanel.setEnabled(false);
 
@@ -756,6 +801,8 @@ public class mainpage {
 
                     GraphPanel.setVisible(true);
                     GraphPanel.setEnabled(true);
+
+
                 }
         });
 
@@ -769,8 +816,21 @@ public class mainpage {
                 }
         });
 
+
+
+            VideoPanel = new JPanel(new BorderLayout());
+            canvas = new Canvas();
+            VideoPanel.add(canvas);
+            VideoPanel.setPreferredSize(new Dimension(1080-widthNav, 720));
+
+            
+
+            mediaPlayerComponent = new EmbeddedMediaPlayerComponent();
+            VideoPanel.add(mediaPlayerComponent);
+
+
+                    //Adding Components to Panels
         
-        //Adding Components to Panels
         GraphPanel.add(GraphPanelTitle);
         GraphPanel.add(LabelAverage);
         GraphPanel.add(LabelPopularSkin);
@@ -806,40 +866,58 @@ public class mainpage {
         ImagePanel.add(ValueDate);
         ImagePanel.add(LabelGunImage);
 
-
+        NavPanel.add(RiotLogo);
         NavPanel.add(HomeButton);
         NavPanel.add(GraphButton);
         NavPanel.add(DashButton);
         NavPanel.add(LogoutButton);
 
-        //Adding Panels to JFrame
-        RootPanel.add(NavPanel);
-        RootPanel.add(DashPanel);
-        RootPanel.add(ImagePanel);
-        RootPanel.add(HomePanel);
-        RootPanel.add(GraphPanel);
 
-        MainWindow.getContentPane().add(RootPanel);
+            RootPanel.add(NavPanel);
+            RootPanel.add(DashPanel);
+            RootPanel.add(ImagePanel);
+            //RootPanel.add(HomePanel);
+            RootPanel.add(GraphPanel);
+            RootPanel.add(VideoPanel);
+            
+            
+            //VideoPanel.add(mediaPlayerComponent);
 
-        //Window Essential
-        MainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        MainWindow.setBackground(bgColor);
-        MainWindow.setUndecorated(true);
-        MainWindow.setSize(1080, 720);
-        MainWindow.setResizable(false);
-        MainWindow.getContentPane().setLayout(null);
+            MainWindow = new JFrame("My Video Player");
+            MainWindow.setLayout(null);
+            MainWindow.setSize(1080, 720);
+            MainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            MainWindow.setContentPane(RootPanel);
 
-        //This is the function that is responsible for making the window appear centered on startup
-        int w = MainWindow.getSize().width;
-        int h = MainWindow.getSize().height;
-        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (dim.width-w)/2;
-        int y = (dim.height-h)/2;
-        MainWindow.setLocation(x,y);
-        MainWindow.setVisible(true);
+                //Window Essential
+            //MainWindow.setBackground(bgColor);
+            MainWindow.setUndecorated(true);
+            MainWindow.setResizable(false);
+            MainWindow.getContentPane().setLayout(null);
+            MainWindow.setVisible(true);
+                
+
+            VideoPanel.setBounds(widthNav, 0, VideoPanel.getPreferredSize().width, VideoPanel.getPreferredSize().height);
+
+            MainWindow.setVisible(true);
+
+            mediaPlayerComponent.mediaPlayer().video().setAspectRatio("16:9");
+            mediaPlayerComponent.mediaPlayer().video().setScale(1.0f);
+            mediaPlayerComponent.mediaPlayer().media().play("src/Video/HomeScreen.mp4");
+            mediaPlayerComponent.mediaPlayer().controls().setRepeat(true);
+
+            //This is the function that is responsible for making the window appear centered on startup
+            int w = MainWindow.getSize().width;
+            int h = MainWindow.getSize().height;
+            Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+            int x = (dim.width-w)/2;
+            int y = (dim.height-h)/2;
+            MainWindow.setLocation(x,y);
+        
+
     }
 
-         public static void main(String[] args) {
+             public static void main(String[] args) {
         FlatDarkLaf.setup();
         new mainpage();
     }
